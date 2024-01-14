@@ -1,3 +1,5 @@
+import base64
+import json
 from datetime import datetime
 import time
 import cv2 as cv
@@ -206,7 +208,7 @@ class CarryingAngle:
         
         # Save results
         self.results.append((int(carrying_angle), datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')))
-        
+        self.angle=str(int(carrying_angle))
         carrying_angle_text = 'Carrying angle: ' + str(int(carrying_angle))
         cv.putText(frame, carrying_angle_text, (10, 30), font, 0.9, yellow, 2)
         
@@ -220,26 +222,21 @@ class CarryingAngle:
             cv.putText(frame, 'cubitus valgus', (10, 70), font, 0.9, yellow, 2)
         
 
-    def run(self):
-        camera = Camera()
-        camera.is_opened()
-        
-        while True:
-            ret, frame = camera.get_frame()
-            if not ret:
-                print("Error: Failed to capture frame.")
-                break
-            
-            fr = Frame(frame)
-            frame = fr.frame
-            lm, lm_pose = self.get_landmarks(frame)
-            if lm:
-                keypoints = self.get_keypoints(lm, lm_pose, fr.width, fr.height)
-                self.get_angle(fr, frame, keypoints, fr.width, fr.height, fr.font, fr.colors)
-            
-            # self.show_landmarks(frame, lm)
-            
-            ret, buffer = cv.imencode('.jpg', frame)
-            frame = buffer.tobytes()
-            yield (b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+    def run(self, img):
+        frame = cv.imread(img)
+        fr = Frame(frame)
+        frame = fr.frame
+        lm, lm_pose = self.get_landmarks(frame)
+        if lm:
+            keypoints = self.get_keypoints(lm, lm_pose, fr.width, fr.height)
+            self.get_angle(fr, frame, keypoints, fr.width, fr.height, fr.font, fr.colors)
+
+        ret, buffer = cv.imencode('.jpg', frame)
+        frame = buffer.tobytes()
+        with open('result_image.jpg', 'wb') as file:
+            file.write(frame)
+
+        # yield frame
+        dt = {"angle": self.angle,
+              "img": base64.b64encode(frame).decode("utf-8")}
+        yield json.dumps(dt)

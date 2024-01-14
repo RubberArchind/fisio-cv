@@ -1,3 +1,5 @@
+import base64
+import json
 from datetime import datetime
 import time
 import cv2 as cv
@@ -7,6 +9,8 @@ from controllers.camera import Camera, Frame
 
 class ForwardShoulderAngle:
     def __init__(self):
+        self.angle = None
+        self.facing = None
         self.mp_pose = mp.solutions.pose
         self.pose = self.mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
         self.mp_draw = mp.solutions.drawing_utils
@@ -104,7 +108,7 @@ class ForwardShoulderAngle:
             facing = 'left'
         else:
             facing = 'right'
-            
+        self.facing = facing
         cv.putText(frame, 'Facing: ' + facing, (10, h - 20), font, 0.9, green, 2)
 
         # Get tragus
@@ -159,7 +163,7 @@ class ForwardShoulderAngle:
         cv.circle(frame, (r_shldr_x, r_shldr_y), 7, red, -1)
 
         # fr.draw_angle_indicator(frame, (c7_x, c7_y), 50, 0, shoulder_angle, yellow)
-
+        self.angle=str(int(shoulder_angle))
         # Text string for display.
         shoulder_angle_text = 'Shoulder angle: ' + str(int(shoulder_angle))
 
@@ -186,32 +190,27 @@ class ForwardShoulderAngle:
             cv.line(frame, (shldr_x, shldr_y), (c7_x, c7_y), red, 4)
     
     
-    def run(self):
-        camera = Camera()
-        camera.is_opened()
-        
-        while True:
-            ret, frame = camera.get_frame()
-            if not ret:
-                print("Error: Failed to capture frame.")
-                break
-            
-            fr = Frame(frame)
-            frame = fr.frame
-            lm, lm_pose = self.get_landmarks(frame)
-            if lm:
-                keypoints = self.get_keypoints(lm, lm_pose, fr.width, fr.height)
-                self.get_angle(fr, frame, keypoints, fr.width, fr.height, fr.font, fr.colors)
-            
-            # self.show_landmarks(frame, lm)
-            
-            # cv.imshow('Craniovertebra Angle', frame)
-            # if cv.waitKey(1) & 0xFF == 27:
-            #     break #27 is ESC key.
-            
-            ret, buffer = cv.imencode('.jpg', frame)
-            frame = buffer.tobytes()
-            yield (b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-        
-        # camera.release()
+    def run(self, img):
+        frame = cv.imread(img)
+        fr = Frame(frame)
+        frame = fr.frame
+        lm, lm_pose = self.get_landmarks(frame)
+        if lm:
+            keypoints = self.get_keypoints(lm, lm_pose, fr.width, fr.height)
+            self.get_angle(fr, frame, keypoints, fr.width, fr.height, fr.font, fr.colors)
+
+        # self.show_landmarks(frame, lm)
+
+        # cv.imshow('Craniovertebra Angle', frame)
+        # if cv.waitKey(1) & 0xFF == 27:
+        #     break #27 is ESC key.
+
+        ret, buffer = cv.imencode('.jpg', frame)
+        frame = buffer.tobytes()
+        with open('result_image.jpg', 'wb') as file:
+            file.write(frame)
+
+        # yield frame
+        dt = {"facing": self.facing, "angle": self.angle,
+              "img": base64.b64encode(frame).decode("utf-8")}
+        yield json.dumps(dt)

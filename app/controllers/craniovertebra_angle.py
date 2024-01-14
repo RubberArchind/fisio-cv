@@ -1,8 +1,12 @@
+import base64
+import json
 import time
 from datetime import datetime
 import cv2 as cv
 import mediapipe as mp
 import math
+
+import numpy as np
 from controllers.camera import Camera, Frame, Record
 
 class CraniovertebraAngle:
@@ -12,6 +16,8 @@ class CraniovertebraAngle:
         self.mp_draw = mp.solutions.drawing_utils
         self.mp_draw_style = mp.solutions.drawing_styles
         self.results = []
+        self.aligned = False
+        self.angle = -1
 
     def find_distance(self, x1, y1, x2, y2):
         return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
@@ -91,11 +97,13 @@ class CraniovertebraAngle:
         
         # Calculate distance between left shoulder and right shoulder points.
         offset = self.find_distance(l_shldr_x, l_shldr_y, r_shldr_x, r_shldr_y)
-        
+        print("OFFsET", offset)
         # Assist to align the camera to point at the side view of the person.
         if offset < 50:
+            self.aligned = True
             cv.putText(frame, str(int(offset)) + ' Aligned', (10, h -50), font, 0.9, green, 2)
         else:
+            self.aligned = False
             cv.putText(frame, str(int(offset)) + ' Not Aligned', (10, h -50), font, 0.9, red, 2)
         
         # Get midpoint of left and right shoulder points.
@@ -103,16 +111,16 @@ class CraniovertebraAngle:
         
         cv.line(frame, (l_shldr_x, l_shldr_y), (r_shldr_x, r_shldr_y), yellow, 2)
 
-        # Determine whether the person is facing left or right.
+        # Determine whether the person is self.facing left or right.
         if mx > nose_x:
-            facing = 'left'
+            self.facing = 'left'
         else:
-            facing = 'right'
+            self.facing = 'right'
             
-        cv.putText(frame, 'Facing: ' + facing, (10, h - 20), font, 0.9, green, 2)
+        cv.putText(frame, 'facing: ' + self.facing, (10, h - 20), font, 0.9, green, 2)
 
         # Get tragus
-        if facing == 'left':
+        if self.facing == 'left':
             l_eye_to_ear = self.find_distance(l_eye_x, l_eye_y, l_ear_x, l_ear_y)
             trg_x, trg_y = int(l_ear_x + (l_eye_to_ear / 2)), int(l_ear_y - (l_eye_to_ear / 4))
         else:
@@ -124,7 +132,7 @@ class CraniovertebraAngle:
         # Calculate distance between tragus and midpoint.
         trg_to_mid = self.find_distance(trg_x, trg_y, mx, my)
         neck_ratio = 0.25
-        if facing == 'left':
+        if self.facing == 'left':
             c7_x, c7_y = int(mx + (trg_to_mid * neck_ratio)), int(my - (trg_to_mid * neck_ratio))
         else:
             c7_x, c7_y = int(mx - (trg_to_mid * neck_ratio)), int(my - (trg_to_mid * neck_ratio))
@@ -145,7 +153,7 @@ class CraniovertebraAngle:
         cv.line(frame, (c7_x, c7_y - 50), (c7_x, c7_y + 50), yellow, 2)
         
         # Calculate angles.
-        neck_inclination = self.find_angle(c7_x, c7_y, trg_x, trg_y, facing)
+        neck_inclination = self.find_angle(c7_x, c7_y, trg_x, trg_y, self.facing)
         
         # Save results
         self.results.append((int(neck_inclination), datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')))
@@ -160,6 +168,7 @@ class CraniovertebraAngle:
 
         # Put text, Posture and angle inclination.
         # Text string for display.
+        self.angle = str(int(neck_inclination))
         angle_text_string = 'Angle: ' + str(int(neck_inclination))
 
         # The threshold angles to determine posture condition.
@@ -176,34 +185,23 @@ class CraniovertebraAngle:
 
             # Join landmarks.
             cv.line(frame, (c7_x, c7_y), (trg_x, trg_y), red, 4)
-    
-    
-    def run(self):
-        camera = Camera()
-        camera.is_opened()
-        
-        while True:
-            ret, frame = camera.get_frame()
-            if not ret:
-                print("Error: Failed to capture frame.")
-                break
-            
-            fr = Frame(frame)
-            frame = fr.frame
-            lm, lm_pose = self.get_landmarks(frame)
-            if lm:
-                keypoints = self.get_keypoints(lm, lm_pose, fr.width, fr.height)
-                self.get_angle(fr, frame, keypoints, fr.width, fr.height, fr.font, fr.colors)
-            
-            # self.show_landmarks(frame, lm)
-            
-            # cv.imshow('Craniovertebra Angle', frame)
-            # if cv.waitKey(1) & 0xFF == 27:
-            #     break #27 is ESC key.
-            
-            ret, buffer = cv.imencode('.jpg', frame)
-            frame = buffer.tobytes()
-            yield (b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-        
-        # camera.release()
+
+    def run(self, img):
+        frame = cv.imread(img)
+        fr = Frame(frame)
+        frame = fr.frame
+        lm, lm_pose = self.get_landmarks(frame)
+        if lm:
+            keypoints = self.get_keypoints(lm, lm_pose, fr.width, fr.height)
+            self.get_angle(fr, frame, keypoints, fr.width, fr.height, fr.font, fr.colors)
+
+        # self.show_landmarks(frame, lm)
+
+        ret, buffer = cv.imencode('.jpg', frame)
+        frame = buffer.tobytes()
+        with open('result_image.jpg', 'wb') as file:
+            file.write(frame)
+
+        # yield frame
+        dt = {"facing": self.facing, "isAligned": self.aligned, "angle":self.angle, "img":base64.b64encode(frame).decode("utf-8")}
+        yield json.dumps(dt)
