@@ -44,7 +44,7 @@ class Routes:
             filename = "/tmp/{}".format(time.time())
             print(filename)
             file.save(filename, 'PNG')
-            return Response(self.cv.run(filename), mimetype='image/jpeg')
+            return Response(self.cv.run(filename), mimetype='application/json')
 
         @self.app.route('/craniovertebra_vid')
         def craniovertebra_vid():
@@ -71,7 +71,7 @@ class Routes:
             filename = "/tmp/{}".format(time.time())
             print(filename)
             file.save(filename, 'PNG')
-            return Response(self.fsa.run(filename), mimetype='image/jpeg')
+            return Response(self.fsa.run(filename), mimetype='application/json')
 
         @self.app.route('/forward_shoulder_vid')
         def forward_shoulder_vid():
@@ -97,7 +97,7 @@ class Routes:
             filename = "/tmp/{}".format(time.time())
             print(filename)
             file.save(filename, 'PNG')
-            return Response(self.carry.run(filename), mimetype='image/jpeg')
+            return Response(self.carry.run(filename), mimetype='application/json')
 
         @self.app.route('/carrying_vid')
         def carrying_vid():
@@ -124,7 +124,7 @@ class Routes:
             rbga_file = file.convert('RGB')
             print(rbga_file)
             rbga_file.save("tes.jpg")
-            return Response(self.q.run('tes.jpg'), mimetype='image/jpeg')
+            return Response(self.q.run('tes.jpg'), mimetype='application/json')
 
         @self.app.route('/q_angle_vid')
         def q_angle_vid():
