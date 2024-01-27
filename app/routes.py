@@ -3,6 +3,8 @@ import cv2 as cv
 import numpy as np
 from flask import render_template, Response, jsonify, request
 from PIL import Image
+
+from controllers.clark_angle import ClarkAngle
 from controllers.craniovertebra_angle import CraniovertebraAngle
 from controllers.forward_shoulder_angle import ForwardShoulderAngle
 from controllers.carrying_angle import CarryingAngle
@@ -18,6 +20,7 @@ class Routes:
         self.fsa = ForwardShoulderAngle()
         self.carry = CarryingAngle()
         self.q = QAngle()
+        self.clark = ClarkAngle()
 
     def setup(self):
         self.index()
@@ -25,6 +28,7 @@ class Routes:
         self.forward_shoulder()
         self.carrying()
         self.q_angle()
+        self.clark_angle()
 
     # Home
     def index(self):
@@ -93,6 +97,7 @@ class Routes:
 
         @self.app.route('/carrying_upload', methods=["POST"])
         def carrying_upload():
+            # print(request.form)
             file = Image.open(BytesIO(base64.b64decode(request.form['image'])))
             filename = "/tmp/{}".format(time.time())
             print(filename)
@@ -138,3 +143,12 @@ class Routes:
                 return jsonify("success")
             else:
                 return jsonify("failed")
+
+    def clark_angle(self):
+        @self.app.route('/clark_upload', methods=["POST"])
+        def clark_upload():
+            file = Image.open(BytesIO(base64.b64decode(request.form['image'])))
+            filename = "/tmp/{}".format(time.time())
+            print(filename)
+            file.save(filename, 'PNG')
+            return Response(self.clark.run(filename), mimetype='application/json')

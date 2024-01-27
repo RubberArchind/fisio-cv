@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../fisio/.idea/fisio.iml" filepath="$PROJECT_DIR$/../fisio/.idea/fisio.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/fisio-cv.iml" filepath="$PROJECT_DIR$/.idea/fisio-cv.iml" />
     </modules>
   </component>
