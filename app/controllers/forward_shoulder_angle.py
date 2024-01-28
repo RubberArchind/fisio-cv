@@ -77,9 +77,8 @@ class ForwardShoulderAngle:
             self.angle= int(shoulder_angle)
             fr.put_text(frame, str(int(shoulder_angle)), (keypoints[1].x + 10, keypoints[1].y + 50), fontSize=1)
 
-            fr.put_text(frame, 'Shoulder angle: ' + str(int(shoulder_angle)), (10, 50), fontSize=0.5)
-
-            fr.put_text(frame, 'Condition: ' + self.interpret(shoulder_angle), (10, 100), fontSize=0.5)
+            # fr.put_text(frame, 'Shoulder angle: ' + str(int(shoulder_angle)), (10, 50), fontSize=0.5)
+            # fr.put_text(frame, 'Condition: ' + self.interpret(shoulder_angle), (10, 100), fontSize=0.5)
             self.interpretation = self.interpret(shoulder_angle)
             # Save results
             self.results.append(
