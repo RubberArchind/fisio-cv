@@ -130,13 +130,13 @@ class QAngle:
             fr.put_text(frame, str(i), (point.x + 10, point.y), color=colors.white)
         # endfor
 
-        fr.meta_info(frame, 'Keypoints req: 3', 'bottom_left', (0, -100), fontSize=1.2)
-        fr.meta_info(frame, 'Keypoints count: ' + str(len(keypoints)), 'bottom_left', (0, -50), fontSize=1.2)
+        # fr.meta_info(frame, 'Keypoints req: 3', 'bottom_left', (0, -100), fontSize=1.2)
+        # fr.meta_info(frame, 'Keypoints count: ' + str(len(keypoints)), 'bottom_left', (0, -50), fontSize=1.2)
 
         # Connect keypoints with lines
         if len(keypoints) == 3:
             self.isValid= True
-            fr.meta_info(frame, 'Keypoints status: valid', 'bottom_left', fontSize=1.2, color=colors.green)
+            # fr.meta_info(frame, 'Keypoints status: valid', 'bottom_left', fontSize=1.2, color=colors.green)
 
             # Draw line to each keypoints
             for i in range(len(keypoints) - 1):
@@ -171,8 +171,8 @@ class QAngle:
             # Save results
             self.results.append((int(q_angle), datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')))
 
-        else:
-            fr.meta_info(frame, 'Keypoints status: invalid', 'bottom_left', fontSize=1.2, color=colors.red)
+        # else:
+        #     fr.meta_info(frame, 'Keypoints status: invalid', 'bottom_left', fontSize=1.2, color=colors.red)
 
         ret, buffer = cv.imencode('.jpg', frame)
         frame = buffer.tobytes()

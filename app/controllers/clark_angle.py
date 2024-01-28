@@ -74,13 +74,13 @@ class ClarkAngle:
             fr.put_text(frame, str(i), (point.x + 10, point.y), color=colors.white)
         #endfor
 
-        fr.meta_info(frame, 'Keypoints req: 3', 'bottom_left', (0, -100), fontSize=1.2)
-        fr.meta_info(frame, 'Keypoints count: ' + str(len(keypoints)), 'bottom_left', (0, -50), fontSize=1.2)
+        # fr.meta_info(frame, 'Keypoints req: 3', 'bottom_left', (0, -100), fontSize=1.2)
+        # fr.meta_info(frame, 'Keypoints count: ' + str(len(keypoints)), 'bottom_left', (0, -50), fontSize=1.2)
 
         # Connect keypoints with lines
         if len(keypoints) == 3:
             self.isValid= True
-            fr.meta_info(frame, 'Keypoints status: valid', 'bottom_left', fontSize=1.2, color=colors.green)
+            # fr.meta_info(frame, 'Keypoints status: valid', 'bottom_left', fontSize=1.2, color=colors.green)
 
             medCap = Point(keypoints[0].x, keypoints[0].y)
             arkus = Point(keypoints[1].x, keypoints[1].y)
@@ -101,8 +101,8 @@ class ClarkAngle:
             # Save results
             self.results.append((int(clark_angle), datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')))
 
-        else:
-            fr.meta_info(frame, 'Keypoints status: invalid', 'bottom_left', fontSize=1.2, color=colors.red)
+        # else:
+            # fr.meta_info(frame, 'Keypoints status: invalid', 'bottom_left', fontSize=1.2, color=colors.red)
 
         ret, buffer = cv.imencode('.jpg', frame)
         frame = buffer.tobytes()
