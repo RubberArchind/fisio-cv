@@ -95,8 +95,8 @@ class ClarkAngle:
             # Object information
             fr.put_text(frame, str(int(clark_angle)), (arkus.x + 10, arkus.y + 50), fontSize=1)
             self.angle= int(clark_angle)
-            fr.meta_info(frame, 'Clarke\'s angle: ' + str(int(clark_angle)), fontSize=0.5)
-            fr.meta_info(frame, 'Condition: ' + self.interpret(clark_angle), 'top_left', (0, 50), fontSize=0.5)
+            # fr.meta_info(frame, 'Clarke\'s angle: ' + str(int(clark_angle)), fontSize=0.5)
+            # fr.meta_info(frame, 'Condition: ' + self.interpret(clark_angle), 'top_left', (0, 50), fontSize=0.5)
             self.interpretation= self.interpret(clark_angle)
             # Save results
             self.results.append((int(clark_angle), datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')))

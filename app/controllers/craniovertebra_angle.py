@@ -73,9 +73,8 @@ class CraniovertebraAngle:
             cv_angle = self.calc_angle(keypoints[0], keypoints[1])
             fr.put_text(frame, str(int(cv_angle)), (keypoints[1].x + 10, keypoints[1].y + 50), fontSize=1)
             self.angle= int(cv_angle)
-            fr.put_text(frame, 'Craniovertebra angle: ' + str(int(cv_angle)), (10, 50), fontSize=0.5)
-
-            fr.put_text(frame, 'Condition: ' + self.interpret(cv_angle), (10, 100), fontSize=0.5)
+            # fr.put_text(frame, 'Craniovertebra angle: ' + str(int(cv_angle)), (10, 50), fontSize=0.5)
+            # fr.put_text(frame, 'Condition: ' + self.interpret(cv_angle), (10, 100), fontSize=0.5)
             self.interpretation = self.interpret(cv_angle)
             # Save results
             self.results.append((int(cv_angle), datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')))
