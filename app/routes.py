@@ -97,12 +97,16 @@ class Routes:
 
         @self.app.route('/carrying_upload', methods=["POST"])
         def carrying_upload():
-            # print(request.form)
             file = Image.open(BytesIO(base64.b64decode(request.form['image'])))
             filename = "/tmp/{}".format(time.time())
             print(filename)
             file.save(filename, 'PNG')
-            return Response(self.carry.run(filename), mimetype='application/json')
+            return Response(self.clark.run(filename), mimetype='application/json')
+            # file = Image.open(BytesIO(base64.b64decode(request.form['image'])))
+            # filename = "/tmp/{}".format(time.time())
+            # print(filename)
+            # file.save(filename, 'PNG')
+            # return Response(self.carry.run(filename), mimetype='application/json')
 
         @self.app.route('/carrying_vid')
         def carrying_vid():
