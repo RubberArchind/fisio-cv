@@ -101,7 +101,7 @@ class Routes:
             filename = "/tmp/{}".format(time.time())
             print(filename)
             file.save(filename, 'PNG')
-            return Response(self.clark.run(filename), mimetype='application/json')
+            return Response(self.carry.run(filename), mimetype='application/json')
             # file = Image.open(BytesIO(base64.b64decode(request.form['image'])))
             # filename = "/tmp/{}".format(time.time())
             # print(filename)
@@ -128,12 +128,17 @@ class Routes:
 
         @self.app.route('/q_angle_upload', methods=["POST"])
         def q_angle_upload():
-            file = Image.open(request.files['image'].stream)
-            print(file)
-            rbga_file = file.convert('RGB')
-            print(rbga_file)
-            rbga_file.save("tes.jpg")
-            return Response(self.q.run('tes.jpg'), mimetype='application/json')
+            file = Image.open(BytesIO(base64.b64decode(request.form['image'])))
+            filename = "/tmp/{}".format(time.time())
+            print(filename)
+            file.save(filename, 'PNG')
+            return Response(self.q.run(filename), mimetype='application/json')
+            # file = Image.open(request.files['image'].stream)
+            # print(file)
+            # rbga_file = file.convert('RGB')
+            # print(rbga_file)
+            # rbga_file.save("tes.jpg")
+            # return Response(self.q.run('tes.jpg'), mimetype='application/json')
 
         @self.app.route('/q_angle_vid')
         def q_angle_vid():
@@ -151,6 +156,7 @@ class Routes:
     def clark_angle(self):
         @self.app.route('/clark_upload', methods=["POST"])
         def clark_upload():
+
             file = Image.open(BytesIO(base64.b64decode(request.form['image'])))
             filename = "/tmp/{}".format(time.time())
             print(filename)
