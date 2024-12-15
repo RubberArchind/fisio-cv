@@ -80,11 +80,11 @@ class QAngle:
 
     def interpret(self, angle):
         if (angle < 10):
-            return 'bow legged (genu valgum)'
+            return 'Genu Valgum'
         elif (angle < 15):
-            return 'normal'
+            return 'Normal'
         else:
-            return 'knok-kneed (genu varum)'
+            return 'Genu Varum'
 
     def draw_line_over(self, frame, center: Point, radius, end_angle, direction, color=global_colors.yellow):
         # Convert angles to radians
