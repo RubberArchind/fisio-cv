@@ -43,12 +43,12 @@ class ClarkAngle:
         return degree 
     
     def interpret(self, angle):
-        if (angle >= 30 and angle<=41):
+        if (angle < 31):
             return 'Flat Foot'
-        elif (angle >= 42 and angle <= 54):
-            return 'Normal Foot'
+        elif (angle >45):
+            return 'Cavus Foot'
         else:
-            return 'High arcus'
+            return 'Normal Foot'
     
     def run(self, img):
         colors = Colors()
